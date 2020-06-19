@@ -10,5 +10,5 @@ const post = (props) => (
         </div>
     </article>
 );
-
+                                            // withRouter component will enable all the property of the props like history ,match ,location
 export default post;

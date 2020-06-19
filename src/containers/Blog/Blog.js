@@ -1,70 +1,59 @@
 import React, { Component } from 'react';
-import axiosInstance from '../../axiosInstance'
-import Post from '../../components/Post/Post';
-import FullPost from '../../components/FullPost/FullPost';
-import NewPost from '../../components/NewPost/NewPost';
+import Posts from '../../containers/Blog/Posts/Posts';
 import './Blog.css';
+import {Route,NavLink,withRouter,Switch,Redirect} from 'react-router-dom'
+// import NewPost from './NewPost/NewPost'
+import asyncComponent from '../../hoc/asyncComponent';
+import FullPost from './FullPost/FullPost'
+
+
+const AysncNewPost=asyncComponent(()=>{
+    return import('./NewPost/NewPost');
+})
 
 class Blog extends Component {
 
-    state={
-        posts:[],
-        selectedId:null,
-        error:false
-    }
-
-    componentDidMount(){
-        axiosInstance.get("https://jsonplaceholder.typicode.com/posts")
-        .then((response)=>{
-
-            const posts=response.data.slice(0,4);
-            const updatedPost=posts.map(post=>{
-                        return {
-                            ...post,
-                            author:'Max'
-                        }
-            })
-
-            this.setState({posts:updatedPost})
-            console.log(response);
-        })
-        .catch(err=>{
-            console.log(err);
-            this.setState({error:true});
-        })
-    }
-
-    selectedIdHandle=(id)=>{
-            this.setState({selectedId:id});
-    }
+     // Relative Path    // By Default absolute path -->    pathname:'/new-post'   // Study It 
+    componentDidUpdate(){
+        console.log(this.props);
+    }                                
 
     render () {
-
-        let posts=<p style={{'alignContent':'center'}}>Something Went Wrong !</p>
-        if(!this.state.error){
-            posts=this.state.posts.map(post=>{
-                return <Post key={post.id} 
-                title={post.title} 
-                author={post.author} 
-                clicked={()=>this.selectedIdHandle(post.id)} />
-            })
-        }
-  
-
         return (
             <div>
-                <section className="Posts">
-                    {posts}
-                </section>
-                <section>
-                    <FullPost  id={this.state.selectedId}/>
-                </section>
-                <section>
-                    <NewPost />
-                </section>
-            </div>
+                <header className="Blogs">
+                    <nav>
+                        <ol>
+                            <li><NavLink to="/" exact
+                            activeClassName='active-styles'
+                            activeStyle={{
+                                color:'#fa923f',
+                                textDecoration:'underline'
+                            }}
+                            
+                            >Home</NavLink></li>
+                            <li><NavLink  to={
+                                {
+                                    pathname:'/new-post',     
+                                    hash:'#submit',   
+                                    search:'?quick-submit=true'
+                                }
+                            }>New Posts</NavLink></li>
+                        </ol>
+                    </nav>
+                </header>
+                {/* <Route path="/" exact render={()=> <h1> Logic</h1>}></Route> */}
+               <Switch>
+               <Route path="/" exact component={Posts} />
+                <Route path="/new-post" component={AysncNewPost}/>
+                <Route path="/posts/:id" exact component={FullPost}/>
+                <Redirect from="/" to ="/new-post"/> 
+         
+               </Switch>
+               
+                  </div>
         );
     }
 }
 
-export default Blog;
+export default withRouter(Blog); 
